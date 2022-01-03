@@ -9,18 +9,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
-class SequenceTest {
-
-    @DisplayName("@ThreadSafe synchronized Test")
+class AtomicSequenceTest {
+    @DisplayName("@ThreadSafe AtomicInteger Test")
     @ParameterizedTest
     @ValueSource(ints = {1000})
     void test_success_thread_safe_sequence(Integer totalCount) throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
 
-        Sequence sequence = new Sequence();
+        AtomicSequence sequence = new AtomicSequence();
         Runnable runnable = sequence::getNext;
-//        Runnable runnable = () -> System.out.printf("[%s] %d%n", Thread.currentThread(), unsafeSequence.getNext());
 
         int count = 0;
         while(count < totalCount) {

@@ -1,14 +1,24 @@
 package com.example.servlet;
 
+import net.jcip.annotations.NotThreadSafe;
 import net.jcip.annotations.ThreadSafe;
 
 import javax.servlet.*;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
-@ThreadSafe // There is no state of class, object.
-public class StatelessFactorizer implements Servlet {
+@NotThreadSafe
+public class UnsafeCachingFactorizer implements Servlet {
     private ServletConfig config;
+    private final AtomicReference<BigInteger> lastNumber;
+    private final AtomicReference<BigInteger[]> lastFactors;
+
+    public UnsafeCachingFactorizer() {
+        lastNumber = new AtomicReference<>();
+        lastFactors = new AtomicReference<>();
+    }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -22,7 +32,7 @@ public class StatelessFactorizer implements Servlet {
 
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        BigInteger i = extractFromRequest(req);
+        BigInteger i = extratFromRequest(req);
         BigInteger[] factors = factor(i);
         encodeIntoResponse(res, factors);
     }
@@ -40,10 +50,17 @@ public class StatelessFactorizer implements Servlet {
     }
 
     private BigInteger[] factor(BigInteger i) {
-        return new BigInteger[]{};
+        if (i.equals(lastNumber.get())) {
+            return lastFactors.get();
+        }
+
+        BigInteger[] factorResult = new BigInteger[] {};
+        lastNumber.set(i);
+        lastFactors.set(factorResult);  // two atomic reference operation is not atomic and not thread safe.
+        return factorResult;
     }
 
-    private BigInteger extractFromRequest(ServletRequest req) {
+    private BigInteger extratFromRequest(ServletRequest req) {
         return new BigInteger("111");
     }
 }

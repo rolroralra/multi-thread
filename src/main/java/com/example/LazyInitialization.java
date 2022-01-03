@@ -11,7 +11,7 @@ public class LazyInitialization {
     public static LazyInitialization getInstance() throws InterruptedException {
         if (INSTANCE == null) {
             Thread.sleep(1);
-            INSTANCE = new LazyInitialization();
+            INSTANCE = new LazyInitialization();    // ExpensiveObject
         }
 
         return INSTANCE;
